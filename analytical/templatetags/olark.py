@@ -7,9 +7,9 @@ from __future__ import absolute_import
 import json
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import get_identity, get_required_setting
+from analytical.utils import get_identity, get_required_setting, validate_no_args
 
 
 SITE_ID_RE = re.compile(r'^\d+-\d+-\d+-\d+$')
@@ -50,9 +50,7 @@ def olark(parser, token):
     Renders Javascript code to set-up Olark chat.  You must supply
     your site ID in the ``OLARK_SITE_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return OlarkNode()
 
 

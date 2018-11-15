@@ -7,10 +7,11 @@ from __future__ import absolute_import
 import re
 
 from django.conf import settings
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 from django.utils import translation
 
-from analytical.utils import get_identity, get_required_setting
+from analytical.utils import get_identity, get_required_setting, validate_no_args
+
 
 BUTTON_LOCATION_LEFT = 0
 BUTTON_LOCATION_RIGHT = 1
@@ -60,9 +61,7 @@ def snapengage(parser, token):
     Renders Javascript code to set-up SnapEngage chat.  You must supply
     your widget ID in the ``SNAPENGAGE_WIDGET_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return SnapEngageNode()
 
 

@@ -4,10 +4,23 @@ Utility function for django-analytical.
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.template import TemplateSyntaxError
+from django.template.base import Token  # noqa: F401
 
 
 HTML_COMMENT = "<!-- %(service)s disabled on internal IP " \
                "address\n%(html)s\n-->"
+
+
+def validate_no_args(token):  # type: (Token) -> None
+    """
+    Template tag helper: Validate that no arguments were passed in.
+
+    :raise TemplateSyntaxError: If arguments were passed.
+    """
+    bits = token.split_contents()
+    if len(bits) > 1:
+        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
 
 
 def get_required_setting(setting, value_re, invalid_msg):

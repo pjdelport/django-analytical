@@ -8,8 +8,8 @@ import json
 import re
 
 from django.conf import settings
-from django.template import Library, Node, TemplateSyntaxError
-from analytical.utils import get_required_setting, get_identity
+from django.template import Library, Node
+from analytical.utils import get_required_setting, get_identity, validate_no_args
 
 
 WIDGET_KEY_RE = re.compile(r'^[a-zA-Z0-9]*$')
@@ -41,9 +41,7 @@ def uservoice(parser, token):
     your UserVoice Widget Key in the ``USERVOICE_WIDGET_KEY``
     setting or the ``uservoice_widget_key`` template context variable.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return UserVoiceNode()
 
 

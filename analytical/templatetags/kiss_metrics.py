@@ -7,10 +7,10 @@ from __future__ import absolute_import
 import json
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import is_internal_ip, disable_html, get_identity, \
-        get_required_setting
+        get_required_setting, validate_no_args
 
 
 API_KEY_RE = re.compile(r'^[0-9a-f]{40}$')
@@ -53,9 +53,7 @@ def kiss_metrics(parser, token):
     your KISSmetrics API key in the ``KISS_METRICS_API_KEY``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return KissMetricsNode()
 
 

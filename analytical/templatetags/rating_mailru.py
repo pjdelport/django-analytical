@@ -6,10 +6,10 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import is_internal_ip, disable_html, \
-        get_required_setting
+        get_required_setting, validate_no_args
 
 
 COUNTER_ID_RE = re.compile(r'^\d{7}$')
@@ -43,9 +43,7 @@ def rating_mailru(parser, token):
     your website counter ID (as a string) in the
     ``RATING_MAILRU_COUNTER_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return RatingMailruNode()
 
 

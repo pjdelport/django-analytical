@@ -8,10 +8,10 @@ import json
 import re
 
 from django.conf import settings
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import is_internal_ip, disable_html, \
-        get_required_setting
+        get_required_setting, validate_no_args
 
 
 COUNTER_ID_RE = re.compile(r'^\d{8}$')
@@ -52,9 +52,7 @@ def yandex_metrica(parser, token):
     your website counter ID (as a string) in the
     ``YANDEX_METRICA_COUNTER_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return YandexMetricaNode()
 
 

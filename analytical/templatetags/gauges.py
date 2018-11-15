@@ -6,9 +6,10 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
+
 
 SITE_ID_RE = re.compile(r'[\da-f]+$')
 TRACKING_CODE = """
@@ -39,9 +40,7 @@ def gauges(parser, token):
     your Site ID account number in the ``GAUGES_SITE_ID``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return GaugesNode()
 
 

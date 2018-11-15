@@ -6,9 +6,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
 
 
 PORTAL_ID_RE = re.compile(r'^\d+$')
@@ -36,9 +36,7 @@ def hubspot(parser, token):
     Renders Javascript code to track page visits.  You must supply
     your portal ID (as a string) in the ``HUBSPOT_PORTAL_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return HubSpotNode()
 
 

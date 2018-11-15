@@ -8,7 +8,7 @@ import decimal
 import re
 
 from django.conf import settings
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import (
     AnalyticalException,
@@ -16,6 +16,7 @@ from analytical.utils import (
     get_domain,
     get_required_setting,
     is_internal_ip,
+    validate_no_args,
 )
 
 TRACK_SINGLE_DOMAIN = 1
@@ -71,9 +72,7 @@ def google_analytics(parser, token):
     your website property ID (as a string) in the
     ``GOOGLE_ANALYTICS_PROPERTY_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return GoogleAnalyticsNode()
 
 

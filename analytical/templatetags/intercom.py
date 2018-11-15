@@ -7,11 +7,12 @@ import json
 import time
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import disable_html, get_required_setting, \
         is_internal_ip, get_user_from_context, get_identity, \
-        get_user_is_authenticated
+        get_user_is_authenticated, validate_no_args
+
 
 APP_ID_RE = re.compile(r'[\da-z]+$')
 TRACKING_CODE = """
@@ -33,9 +34,7 @@ def intercom(parser, token):
     your APP ID account number in the ``INTERCOM_APP_ID``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return IntercomNode()
 
 

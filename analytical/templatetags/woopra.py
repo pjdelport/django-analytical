@@ -8,7 +8,7 @@ import json
 import re
 
 from django.conf import settings
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import (
     disable_html,
@@ -17,7 +17,7 @@ from analytical.utils import (
     get_user_from_context,
     get_user_is_authenticated,
     is_internal_ip,
-)
+    validate_no_args)
 
 DOMAIN_RE = re.compile(r'^\S+$')
 TRACKING_CODE = """
@@ -42,9 +42,7 @@ def woopra(parser, token):
     Renders Javascript code to track page visits.  You must supply
     your Woopra domain in the ``WOOPRA_DOMAIN`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return WoopraNode()
 
 

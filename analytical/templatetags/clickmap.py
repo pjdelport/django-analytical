@@ -6,9 +6,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
 
 
 CLICKMAP_TRACKER_ID_RE = re.compile(r'^\w+$')
@@ -37,9 +37,7 @@ def clickmap(parser, token):
     your clickmap tracker ID (as a string) in the ``CLICKMAP_TRACKER_ID``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return ClickmapNode()
 
 

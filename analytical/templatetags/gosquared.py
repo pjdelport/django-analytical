@@ -6,10 +6,10 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import get_identity, \
-        is_internal_ip, disable_html, get_required_setting
+        is_internal_ip, disable_html, get_required_setting, validate_no_args
 
 
 TOKEN_RE = re.compile(r'^\S+-\S+-\S+$')
@@ -42,9 +42,7 @@ def gosquared(parser, token):
     Renders Javascript code to track page visits.  You must supply
     your GoSquared site token in the ``GOSQUARED_SITE_TOKEN`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return GoSquaredNode()
 
 

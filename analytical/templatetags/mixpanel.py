@@ -7,11 +7,11 @@ from __future__ import absolute_import
 import json
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 from django.utils.safestring import mark_safe
 
 from analytical.utils import is_internal_ip, disable_html, get_identity, \
-        get_required_setting
+        get_required_setting, validate_no_args
 
 
 MIXPANEL_API_TOKEN_RE = re.compile(r'^[0-9a-f]{32}$')
@@ -39,9 +39,7 @@ def mixpanel(parser, token):
     Renders Javascript code to track page visits.  You must supply
     your Mixpanel token in the ``MIXPANEL_API_TOKEN`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return MixpanelNode()
 
 

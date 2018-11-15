@@ -5,9 +5,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import get_required_setting, is_internal_ip, disable_html
+from analytical.utils import get_required_setting, is_internal_ip, disable_html, validate_no_args
 
 
 FACEBOOK_PIXEL_HEAD_CODE = """\
@@ -34,18 +34,12 @@ FACEBOOK_PIXEL_BODY_CODE = """\
 register = Library()
 
 
-def _validate_no_args(token):
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
-
-
 @register.tag
 def facebook_pixel_head(parser, token):
     """
     Facebook Pixel head template tag.
     """
-    _validate_no_args(token)
+    validate_no_args(token)
     return FacebookPixelHeadNode()
 
 
@@ -54,7 +48,7 @@ def facebook_pixel_body(parser, token):
     """
     Facebook Pixel body template tag.
     """
-    _validate_no_args(token)
+    validate_no_args(token)
     return FacebookPixelBodyNode()
 
 

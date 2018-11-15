@@ -8,10 +8,10 @@ from collections import namedtuple
 from itertools import chain
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import (is_internal_ip, disable_html,
-                              get_required_setting, get_identity)
+                              get_required_setting, get_identity, validate_no_args)
 
 
 # domain name (characters separated by a dot), optional port, optional URI path, no slash
@@ -63,9 +63,7 @@ def piwik(parser, token):
     (default) or ``'visit'``.  Index should be an integer and the
     other parameters should be strings.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return PiwikNode()
 
 

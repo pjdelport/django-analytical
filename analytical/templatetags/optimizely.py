@@ -6,9 +6,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
 
 
 ACCOUNT_NUMBER_RE = re.compile(r'^\d+$')
@@ -27,9 +27,7 @@ def optimizely(parser, token):
     your Optimizely account number in the ``OPTIMIZELY_ACCOUNT_NUMBER``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return OptimizelyNode()
 
 

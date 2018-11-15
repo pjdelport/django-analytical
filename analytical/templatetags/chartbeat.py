@@ -9,9 +9,9 @@ import re
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
 
 
 USER_ID_RE = re.compile(r'^\d+$')
@@ -49,9 +49,7 @@ def chartbeat_top(parser, token):
 
     Render the top Javascript code for Chartbeat.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return ChartbeatTopNode()
 
 
@@ -71,9 +69,7 @@ def chartbeat_bottom(parser, token):
     your Chartbeat User ID (as a string) in the ``CHARTBEAT_USER_ID``
     setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return ChartbeatBottomNode()
 
 

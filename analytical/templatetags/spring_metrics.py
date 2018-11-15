@@ -6,10 +6,10 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
 from analytical.utils import get_identity, is_internal_ip, disable_html, \
-        get_required_setting
+        get_required_setting, validate_no_args
 
 
 TRACKING_ID_RE = re.compile(r'^[0-9a-f]+$')
@@ -43,9 +43,7 @@ def spring_metrics(parser, token):
     your Spring Metrics Tracking ID in the
     ``SPRING_METRICS_TRACKING_ID`` setting.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return SpringMetricsNode()
 
 

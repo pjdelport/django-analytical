@@ -5,9 +5,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import get_required_setting, is_internal_ip, disable_html
+from analytical.utils import get_required_setting, is_internal_ip, disable_html, validate_no_args
 
 
 HOTJAR_TRACKING_CODE = """\
@@ -27,18 +27,12 @@ HOTJAR_TRACKING_CODE = """\
 register = Library()
 
 
-def _validate_no_args(token):
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
-
-
 @register.tag
 def hotjar(parser, token):
     """
     Hotjar template tag.
     """
-    _validate_no_args(token)
+    validate_no_args(token)
     return HotjarNode()
 
 

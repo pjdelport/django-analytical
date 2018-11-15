@@ -6,9 +6,9 @@ from __future__ import absolute_import
 
 import re
 
-from django.template import Library, Node, TemplateSyntaxError
+from django.template import Library, Node
 
-from analytical.utils import get_identity, get_required_setting
+from analytical.utils import get_identity, get_required_setting, validate_no_args
 
 
 ACCOUNT_NUMBER_RE = re.compile(r'^\d+$')
@@ -35,9 +35,7 @@ def kiss_insights(parser, token):
     ``KISS_INSIGHTS_ACCOUNT_NUMBER`` and ``KISS_INSIGHTS_SITE_CODE``
     settings.
     """
-    bits = token.split_contents()
-    if len(bits) > 1:
-        raise TemplateSyntaxError("'%s' takes no arguments" % bits[0])
+    validate_no_args(token)
     return KissInsightsNode()
 
 
