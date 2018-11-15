@@ -1,11 +1,13 @@
 """
 Utility function for django-analytical.
 """
+import re
+from typing import Any, Dict  # noqa: F401
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import TemplateSyntaxError
-from django.template.base import Token  # noqa: F401
+from django.template.base import Node, Token  # noqa: F401
 
 
 HTML_COMMENT = "<!-- %(service)s disabled on internal IP " \
@@ -169,6 +171,62 @@ def disable_html(html, service):
     The `service` argument is used to display a friendly message.
     """
     return HTML_COMMENT % {'html': html, 'service': service}
+
+
+class BaseAnalyticalNode(Node):
+    """
+    Base class: override and provide code_template.
+    """
+
+    setting_prefix = None  # type: str
+    setting_name = None  # type: str
+    setting_pattern = None  # type: str
+    setting_invalid_msg = None  # type: str
+    code_template = None  # type: str
+    code_service_label = None # type: str
+
+    def __init__(self):
+        for attr_name in [
+            'setting_name',
+            'setting_pattern',
+            'setting_invalid_msg',
+            'code_template',
+            'code_service_label',
+        ]:
+            if not getattr(self, attr_name):
+                raise TypeError('Subclass missing attribute: {}'.format(attr_name))
+
+        self.setting_value = get_required_setting(
+            self.setting_name,
+            re.compile(self.setting_pattern),
+            self.setting_invalid_msg,
+        )
+
+    def render(self, context):  # type: (Any) -> str
+        html = self.get_code(context)
+        if is_internal_ip(context, self.setting_prefix):
+            return disable_html(html, self.code_service_label)
+        else:
+            return html
+
+    def get_code_context(self, context):  # type: (Any) -> Dict[str, str]
+        return {
+            self.setting_name: self.setting_value,
+        }
+
+    def get_code(self, context):  # type: (Any) -> str
+        return self.code_template % self.get_code_context(context)
+
+
+class BaseAlphanumericAnalyticalNode(BaseAnalyticalNode):
+
+    setting_pattern = r'^\w+$'
+    setting_invalid_msg = 'must be an alphanumeric string'
+
+class BaseNumericAnalyticalNode(BaseAnalyticalNode):
+
+    setting_pattern = r'^\d+$'
+    setting_invalid_msg = 'must be (a string containing) a number'
 
 
 class AnalyticalException(Exception):

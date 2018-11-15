@@ -8,7 +8,8 @@ import re
 
 from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args, \
+    BaseNumericAnalyticalNode
 
 
 ACCOUNT_NUMBER_RE = re.compile(r'^\d+$')
@@ -33,6 +34,16 @@ def crazy_egg(parser, token):
     """
     validate_no_args(token)
     return CrazyEggNode()
+
+
+class CrazyEggNode(BaseNumericAnalyticalNode):
+
+    setting_prefix = 'CRAZY_EGG'
+    setting_name = 'CRAZY_EGG_ACCOUNT_NUMBER'
+    # code_template =
+    code_service_label ='Crazy Egg'
+
+    # TODO
 
 
 class CrazyEggNode(Node):

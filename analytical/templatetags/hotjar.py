@@ -7,7 +7,7 @@ import re
 
 from django.template import Library, Node
 
-from analytical.utils import get_required_setting, is_internal_ip, disable_html, validate_no_args
+from analytical.utils import validate_no_args, BaseAnalyticalNode, BaseNumericAnalyticalNode
 
 
 HOTJAR_TRACKING_CODE = """\
@@ -36,21 +36,12 @@ def hotjar(parser, token):
     return HotjarNode()
 
 
-class HotjarNode(Node):
+class HotjarNode(BaseNumericAnalyticalNode):
 
-    def __init__(self):
-        self.site_id = get_required_setting(
-            'HOTJAR_SITE_ID',
-            re.compile(r'^\d+$'),
-            "must be (a string containing) a number",
-        )
-
-    def render(self, context):
-        html = HOTJAR_TRACKING_CODE % {'HOTJAR_SITE_ID': self.site_id}
-        if is_internal_ip(context, 'HOTJAR'):
-            return disable_html(html, 'Hotjar')
-        else:
-            return html
+    setting_prefix = 'HOTJAR'
+    setting_name = 'HOTJAR_SITE_ID'
+    code_template = HOTJAR_TRACKING_CODE
+    code_service_label = 'Hotjar'
 
 
 def contribute_to_analytical(add_node):

@@ -11,10 +11,10 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args, BaseAnalyticalNode, \
+    BaseNumericAnalyticalNode
 
 
-USER_ID_RE = re.compile(r'^\d+$')
 INIT_CODE = """<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>"""
 SETUP_CODE = """
     <script type="text/javascript">
@@ -73,20 +73,18 @@ def chartbeat_bottom(parser, token):
     return ChartbeatBottomNode()
 
 
-class ChartbeatBottomNode(Node):
-    def __init__(self):
-        self.user_id = get_required_setting('CHARTBEAT_USER_ID', USER_ID_RE,
-                                            "must be (a string containing) a number")
+class ChartbeatBottomNode(BaseNumericAnalyticalNode):
+    setting_prefix = 'CHARTBEAT'
+    setting_name = 'CHARTBEAT_USER_ID'
+    code_template = SETUP_CODE
+    code_service_label = 'Chartbeat'
 
-    def render(self, context):
-        config = {'uid': self.user_id}
+    def get_code_context(self, context):
+        config = {'uid': self.setting_value}
         domain = _get_domain(context)
         if domain is not None:
             config['domain'] = domain
-        html = SETUP_CODE % {'config': json.dumps(config, sort_keys=True)}
-        if is_internal_ip(context, 'CHARTBEAT'):
-            html = disable_html(html, 'Chartbeat')
-        return html
+        return {'config': json.dumps(config, sort_keys=True)}
 
 
 def contribute_to_analytical(add_node):

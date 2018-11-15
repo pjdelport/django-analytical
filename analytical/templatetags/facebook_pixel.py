@@ -7,7 +7,8 @@ import re
 
 from django.template import Library, Node
 
-from analytical.utils import get_required_setting, is_internal_ip, disable_html, validate_no_args
+from analytical.utils import get_required_setting, is_internal_ip, disable_html, validate_no_args, BaseAnalyticalNode, \
+    BaseNumericAnalyticalNode
 
 
 FACEBOOK_PIXEL_HEAD_CODE = """\
@@ -52,27 +53,13 @@ def facebook_pixel_body(parser, token):
     return FacebookPixelBodyNode()
 
 
-class _FacebookPixelNode(Node):
+class _FacebookPixelNode(BaseNumericAnalyticalNode):
     """
     Base class: override and provide code_template.
     """
-    def __init__(self):
-        self.pixel_id = get_required_setting(
-            'FACEBOOK_PIXEL_ID',
-            re.compile(r'^\d+$'),
-            "must be (a string containing) a number",
-        )
-
-    def render(self, context):
-        html = self.code_template % {'FACEBOOK_PIXEL_ID': self.pixel_id}
-        if is_internal_ip(context, 'FACEBOOK_PIXEL'):
-            return disable_html(html, 'Facebook Pixel')
-        else:
-            return html
-
-    @property
-    def code_template(self):
-        raise NotImplementedError  # pragma: no cover
+    setting_prefix = 'FACEBOOK_PIXEL'
+    setting_name = 'FACEBOOK_PIXEL_ID'
+    code_service_label ='Facebook Pixel'
 
 
 class FacebookPixelHeadNode(_FacebookPixelNode):

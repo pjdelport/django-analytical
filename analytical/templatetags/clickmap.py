@@ -8,13 +8,14 @@ import re
 
 from django.template import Library, Node
 
-from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args
+from analytical.utils import is_internal_ip, disable_html, get_required_setting, validate_no_args, \
+    BaseAlphanumericAnalyticalNode
 
 
 CLICKMAP_TRACKER_ID_RE = re.compile(r'^\w+$')
 TRACKING_CODE = """
     <script type="text/javascript">
-    var clickmapConfig = {tracker: '%(tracker_id)s', version:'2'};
+    var clickmapConfig = {tracker: '%(CLICKMAP_TRACKER_ID)s', version:'2'};
     window.clickmapAsyncInit = function(){ __clickmap.init(clickmapConfig); };
     (function() { var _cmf = document.createElement('script'); _cmf.async = true;
     _cmf.src = document.location.protocol + '//www.clickmap.ch/tracker.js?t=';
@@ -40,18 +41,12 @@ def clickmap(parser, token):
     validate_no_args(token)
     return ClickmapNode()
 
+class ClickmapNode(BaseAlphanumericAnalyticalNode):
 
-class ClickmapNode(Node):
-    def __init__(self):
-        self.tracker_id = get_required_setting('CLICKMAP_TRACKER_ID',
-                                               CLICKMAP_TRACKER_ID_RE,
-                                               "must be an alphanumeric string")
-
-    def render(self, context):
-        html = TRACKING_CODE % {'tracker_id': self.tracker_id}
-        if is_internal_ip(context, 'CLICKMAP'):
-            html = disable_html(html, 'Clickmap')
-        return html
+    setting_prefix = 'CLICKMAP'
+    setting_name = 'CLICKMAP_TRACKER_ID'
+    code_template = TRACKING_CODE
+    code_service_label ='Clickmap'
 
 
 def contribute_to_analytical(add_node):

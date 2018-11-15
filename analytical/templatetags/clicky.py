@@ -10,7 +10,7 @@ import re
 from django.template import Library, Node
 
 from analytical.utils import get_identity, is_internal_ip, disable_html, \
-        get_required_setting, validate_no_args
+    get_required_setting, validate_no_args, BaseNumericAnalyticalNode
 
 
 SITE_ID_RE = re.compile(r'^\d+$')
@@ -47,13 +47,14 @@ def clicky(parser, token):
     return ClickyNode()
 
 
-class ClickyNode(Node):
-    def __init__(self):
-        self.site_id = get_required_setting(
-            'CLICKY_SITE_ID', SITE_ID_RE,
-            "must be a (string containing) a number")
+class ClickyNode(BaseNumericAnalyticalNode):
 
-    def render(self, context):
+    setting_prefix = 'CLICKY'
+    setting_name = 'CLICKY_SITE_ID'
+    code_template = TRACKING_CODE
+    code_service_label = 'Clicky'
+
+    def get_code_context(self, context):
         custom = {}
         for dict_ in context:
             for var, val in dict_.items():
@@ -63,14 +64,10 @@ class ClickyNode(Node):
             identity = get_identity(context, 'clicky')
             if identity is not None:
                 custom.setdefault('session', {})['username'] = identity
-
-        html = TRACKING_CODE % {
-            'site_id': self.site_id,
+        return {
+            'site_id': self.setting_value,
             'custom': json.dumps(custom, sort_keys=True),
         }
-        if is_internal_ip(context, 'CLICKY'):
-            html = disable_html(html, 'Clicky')
-        return html
 
 
 def contribute_to_analytical(add_node):
